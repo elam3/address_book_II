@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <string>
 #include <iostream>
 using namespace std;
 
@@ -39,25 +41,58 @@ struct Person * addPerson(struct Person *head, string _firstname, string _lastna
 
 
 
-int main() {
-    struct Person *AddressBook = NULL;
-    AddressBook = addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
-    cout << AddressBook->firstname << endl;
-    AddressBook = addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
-    cout << AddressBook->next->lastname << endl;
-
-    return 0;
-}
+void updatePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
+    /**
+     * Precondition:
+     * Postcondition:
+     */
 
 
 
 
 
-struct Person * addPerson(struct Person *head,
-        string _firstname,
-        string _lastname,
-        string _phone,
-        string _address ) {
+void deletePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
+    /**
+     * Precondition:
+     * Postcondition:
+     */
+
+
+
+
+
+void searchPerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
+    /**
+     * Precondition:
+     * Postcondition:
+     */
+
+
+
+
+
+string toString(struct Person *person);
+    /**
+     * Preconditon: person is null, or properly initialized.
+     * Return: an empty string if person is NULL,
+     *  otherwise return a string representation of a person object.
+     */
+
+
+
+
+
+void printAddressBook(struct Person *head);
+    /**
+     * Precondition: head is NULL, or a linkedlist of Person objects.
+     * Postcondition: print a textual representation of the address book to stdout.
+     */
+
+
+
+
+
+struct Person * addPerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
     if (head == NULL) {
         struct Person *person = new Person;
         person->firstname = _firstname;
@@ -80,3 +115,80 @@ struct Person * addPerson(struct Person *head,
         return head;
     }
 }
+
+
+
+
+
+string toString(struct Person *person) {
+    return ( (person == NULL) ? "" :
+            person->lastname + ", "
+            + person->firstname + ". "
+            + person->phone + ". "
+            + person->address + "."
+        );
+}
+
+
+
+
+
+void printAddressBook(struct Person *head) {
+    cout << "==============================================\n"
+        << "\t\tAddress Book\n"
+        << "==============================================\n";
+    if (head == NULL) 
+        cout << "(Empty)\n";
+    else {
+        struct Person *current = head;
+        int index = 0;
+        while (current != NULL) {
+            cout << setw(4) << ++index << ": "
+                << toString(current) << endl;
+            current = current->next;
+        }
+    }
+}
+
+
+
+
+
+void updatePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
+    ;
+}
+
+
+
+
+
+void deletePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
+    ;
+}
+
+
+
+
+
+void searchPerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
+    ;
+}
+
+
+
+
+
+int main() {
+    struct Person *AddressBook = NULL;
+    AddressBook = addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
+    cout << AddressBook->firstname << endl;
+    addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
+    cout << AddressBook->next->lastname << endl;
+    printAddressBook(AddressBook);
+    return 0;
+}
+
+
+
+
+
