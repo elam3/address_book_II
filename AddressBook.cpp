@@ -75,7 +75,7 @@ string toString(struct Person *person);
     /**
      * Preconditon: person is null, or properly initialized.
      * Return: an empty string if person is NULL,
-     *  otherwise return a string representation of a person object.
+     *  otherwise return a string representation of a Person object.
      */
 
 
@@ -86,6 +86,17 @@ void printAddressBook(struct Person *head);
     /**
      * Precondition: head is NULL, or a linkedlist of Person objects.
      * Postcondition: print a textual representation of the address book to stdout.
+     */
+
+
+
+
+
+struct Person* destroyPersonLinkedList(struct Person *head);
+    /**
+     * Precondition: head is a pointer to a linkedlist of Person objects
+     * Postcondition: all Person nodes of the linkedlist AddressBook will be deallocated from the heap.
+     * Returns: the head node, which should be a NULL.
      */
 
 
@@ -178,13 +189,37 @@ void searchPerson(struct Person *head, string _firstname, string _lastname, stri
 
 
 
+struct Person* destroyPersonLinkedList(struct Person *head) {
+    if (head != NULL) {
+        struct Person *current = head;
+        while (head != NULL) {
+            head = head->next;
+            delete current;
+            current = head;
+        }
+    }
+    return head;
+}
+
+
+
+
+
 int main() {
     struct Person *AddressBook = NULL;
-    AddressBook = addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
-    cout << AddressBook->firstname << endl;
-    addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St.");
-    cout << AddressBook->next->lastname << endl;
+
+    //Add a couple entries to the AddressBook
+    AddressBook = addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St");
+    addPerson(AddressBook, "Bob", "Doe", "(415) 123-4567", "123 Fake St");
+
     printAddressBook(AddressBook);
+
+    //Deallocate memory claimed by AddressBook.
+    AddressBook = destroyPersonLinkedList(AddressBook);
+
+    //Test if AddressBook has been deallocated.
+    printAddressBook(AddressBook);
+
     return 0;
 }
 
