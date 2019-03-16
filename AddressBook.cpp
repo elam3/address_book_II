@@ -1,3 +1,4 @@
+#include <cassert> //assert
 #include <cstdlib> //srand, rand
 #include <ctime> //time
 #include <iomanip> //setw
@@ -79,9 +80,32 @@ struct Person* searchPerson(struct Person *head, string query);
     /**
      * Precondition: head is a pointer to a Person LinkedList,
      *  and query is a string containing search terms to identify a Person object.
-     * Postcondition: 
      * Return: a Person linkedlist of Person objects that contain matches with the query string,
      *  if there are no matches, a Person pointer pointing to null is returned.
+     */
+
+
+
+
+
+int compare(struct Person *src, struct Person *other);
+    /**
+     * Precondition: src and other are well-define Person objects
+     * Postcondition: src and other are compared by lastname, firstname, phone, then address.
+     * Return: a negative integer if src is smaller than other,
+     *  a positive integer if greater,
+     *  or a 0 if they are equal.
+     */
+
+
+
+
+
+struct Person * sort(struct Person *head);
+    /**
+     * Precondition:
+     * Postcondition:
+     * Return: 
      */
 
 
@@ -259,6 +283,97 @@ struct Person* searchPerson(struct Person *head, string query) {
         return results;
     }
     return results;
+}
+
+
+
+
+
+int compare(struct Person *src, struct Person *other) {
+    //Primary Sort: By Last Name
+    if (src->lastname < other->lastname)
+        return -1;
+    else if (src->lastname > other->lastname)
+        return 1;
+    else {
+        //assert (src->lastname == other->lastname);
+        //Secondary Sort: By First Name
+        if (src->firstname < other->firstname)
+            return -1;
+        else if (src->firstname > other->firstname)
+            return 1;
+        else {
+            //assert (src->firstname == other->firstname);
+            //Tertiary Sort: By Phone Number
+            if (src->phone < other->phone)
+                return -1;
+            else if (src->phone > other->phone)
+                return 1;
+            else {
+                //assert (src->phone == other->phone);
+                //Quarternary Sort: By Address
+                if (src->address < other->address)
+                    return -1;
+                else if (src->address > other->address)
+                    return 1;
+                else {
+                    //assert (src->address == other->address);
+                    return 0;
+                }
+            } 
+        }
+    }
+}
+
+
+
+
+
+struct Person * sort(struct Person *head) {
+    if (head == NULL || head->next == NULL)
+        return head; //Ignore empty list, or singletons.
+    else {
+        //There are at least 2 nodes.
+        struct Person *current = head,
+                      *next,
+                      *prev;
+        int len = 0;
+        while (current != NULL) {
+            len++;
+            current = current->next;
+        }
+        //Bubble Sort
+        for (int i = 0; i < len; i++) {
+            prev = head;
+            current = head->next;
+            next = head->next->next;
+            //If the first two nodes need to swap, head needs to be updated.
+            if (compare(prev, current) > 0) {
+                head = current;
+                current->next = prev;
+                prev->next = next;
+                //Re-align the pointers
+                prev = head;
+                current = head->next;
+                next = head->next->next;
+            }
+            while (next != NULL) {
+                if (compare(current, next) > 0) {
+                    struct Person *tmp = next->next;
+                    prev->next = next;
+                    next->next = current;
+                    current->next = tmp;
+                    //Re-aligni pointers
+                    current = prev->next;
+                    next = prev->next->next;
+                }
+                prev = prev->next;
+                current = current->next;
+                next = next->next;
+            }
+        }
+    }
+    return head;
 }
 
 
@@ -478,23 +593,27 @@ int main() {
     const string ADDRESS_BOOK = "Address Book";
     const string SEARCH_RESULTS = "Search Results";
     struct Person *AddressBook = NULL;
+    struct Person *searchResults = NULL;
 
     //Add some entries to the AddressBook
     for (int i = 0; i < 10; i++)
         AddressBook = addPerson(AddressBook, getRandFirstName(), getRandLastName(), getRandPhone(), getRandAddress());
-
     printAddressBook(AddressBook, ADDRESS_BOOK);
 
     cout << "Search (Case-Sensitive): ";
     string searchTerms;
     getline(cin, searchTerms);
     cout << "Searching for: " << searchTerms << endl;
-    struct Person *searchResults = searchPerson(AddressBook, searchTerms);
+    searchResults = searchPerson(AddressBook, searchTerms);
     printAddressBook(searchResults, SEARCH_RESULTS);
     if (searchResults == NULL && searchTerms.find(" ") != string::npos)
         cout << "No results were found. Try narrowing the search. e.g. Just one word.\n";
+    searchResults = destroyPersonLinkedList(searchResults);
 
-    //Deallocate memory claimed by AddressBook.
+    AddressBook = sort(AddressBook);
+    printAddressBook(AddressBook, ADDRESS_BOOK);
+
+    //Memory cleanup.
     AddressBook = destroyPersonLinkedList(AddressBook);
 
     return 0;
