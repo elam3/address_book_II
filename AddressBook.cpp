@@ -66,10 +66,11 @@ void updatePerson(struct Person *head, string _firstname, string _lastname, stri
 
 
 
-void deletePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
+struct Person * deletePerson(struct Person *head, string query);
     /**
-     * Precondition:
-     * Postcondition:
+     * Precondition: head is a Person linkedlist, and query is a string containing search terms to identify a Person object.
+     * Postcondition: the first Person object with a match on query will be removed from the linkedlist.
+     * Return: the head node of the linkedlist
      */
 
 
@@ -103,9 +104,9 @@ int compare(struct Person *src, struct Person *other);
 
 struct Person * sort(struct Person *head);
     /**
-     * Precondition:
-     * Postcondition:
-     * Return: 
+     * Precondition: head is a Person linkedlist
+     * Postcondition: the linkedlist will be sorted in ascending order based on lastname, firstname, phone, then address.
+     * Return: returns the head node of the sorted linkedlist
      */
 
 
@@ -262,8 +263,24 @@ void updatePerson(struct Person *head, string _firstname, string _lastname, stri
 
 
 
-void deletePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
-    ;
+struct Person * deletePerson(struct Person *head, string query) {
+    if (head != NULL) {
+        string person_str = toString(head);
+        if (person_str.find(query) != string::npos) {
+            head = head->next;
+        } else {
+            struct Person *current = head;
+            while (current->next != NULL) {
+                person_str = toString(current->next);
+                if (person_str.find(query) != string::npos) {
+                    current->next = current->next->next;
+                    break;
+                }
+                current = current->next;
+            }
+        }
+    }
+    return head;
 }
 
 
@@ -611,6 +628,11 @@ int main() {
     searchResults = destroyPersonLinkedList(searchResults);
 
     AddressBook = sort(AddressBook);
+    printAddressBook(AddressBook, ADDRESS_BOOK);
+
+    cout << "Which entry would you like to delete? ";
+    getline(cin, searchTerms);
+    AddressBook = deletePerson(AddressBook, searchTerms);
     printAddressBook(AddressBook, ADDRESS_BOOK);
 
     //Memory cleanup.
