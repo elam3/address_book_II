@@ -1,3 +1,17 @@
+/**
+ *  Edison Lam, CS110B, Professor Deepa Mahalingam
+ *  Address Book II
+ *
+ *  Implement the Address Book using linked lists.
+ *  
+ * The person struct is dynamically allocated just like we do for nodes in the
+ * linked list material we covered in class. In this assignment user must be
+ * able to do the following operations :
+ *  Add a person in the address book
+ *  Update a person in the address book
+ *  Delete a person in the address book
+ *  Search for a person in the address book
+ */
 #include <cassert> //assert
 #include <cstdlib> //srand, rand
 #include <ctime> //time
@@ -5,6 +19,7 @@
 #include <string>
 #include <iostream>
 using namespace std;
+#include <limits> //numeric_limits<int>::max()
 
 
 
@@ -56,7 +71,7 @@ struct Person * addPerson(struct Person *head, struct Person *source);
 
 
 
-void updatePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
+void updatePerson(struct Person *head, struct Person *target, struct Person *other);
     /**
      * Precondition:
      * Postcondition:
@@ -68,8 +83,10 @@ void updatePerson(struct Person *head, string _firstname, string _lastname, stri
 
 struct Person * deletePerson(struct Person *head, string query);
     /**
-     * Precondition: head is a Person linkedlist, and query is a string containing search terms to identify a Person object.
-     * Postcondition: the first Person object with a match on query will be removed from the linkedlist.
+     * Precondition: head is a Person linkedlist, and query is a string
+     *  containing search terms to identify a Person object.
+     * Postcondition: the first Person object with a match on query will be
+     *  removed from the linkedlist.
      * Return: the head node of the linkedlist
      */
 
@@ -168,7 +185,8 @@ string getRandLastName();
 string getRandPhone();
     /**
      * Helper function to randomly generate a phone number.
-     * Return: a random string containing a phone number with the format "(###) ###-####".
+     * Return: a random string containing a phone number with the
+     *  format "(###) ###-####".
      */
 
 
@@ -255,8 +273,37 @@ void printAddressBook(struct Person *head, const string title) {
 
 
 
-void updatePerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address ) {
-    ;
+void updatePerson(struct Person *head, struct Person *target, struct Person *other) {
+    struct Person *current = head;
+    while (current != NULL) {
+        if (compare(current, target) == 0) {
+            cout << "UPDATE_PERSON: They are equal.\n";
+            if (other->firstname != "") {
+                current->firstname = other->firstname;
+                cout << "(Update firstname) current: "
+                    << current->firstname
+                    << "\tother: " << other->firstname << endl;
+            }
+            if (other->lastname != "") {
+                current->lastname = other->lastname;
+                cout << "(Update lastname) current: " << current->lastname
+                    << "\tother: " << other->lastname << endl;
+            }
+            if (other->phone != "") {
+                current->phone = other->phone;
+                cout << "(Update phone) current: " << current->phone
+                    << "\tother: " << other->phone << endl;
+            }
+            if (other->address != "") {
+                current->address = other->address;
+                cout << "(Update address) current: " << current->address
+                    << "\tother: " << other->address << endl;
+            }
+            cout << "UPDATE_PERSON: current: " << toString(current) << endl;
+            cout << "UPDATE_PERSON: other: " << toString(current) << endl;
+        }
+        current = current->next;
+    }
 }
 
 
@@ -611,6 +658,8 @@ int main() {
     const string SEARCH_RESULTS = "Search Results";
     struct Person *AddressBook = NULL;
     struct Person *searchResults = NULL;
+    int index;
+    string searchTerms;
 
     //Add some entries to the AddressBook
     for (int i = 0; i < 10; i++)
@@ -618,7 +667,6 @@ int main() {
     printAddressBook(AddressBook, ADDRESS_BOOK);
 
     cout << "Search (Case-Sensitive): ";
-    string searchTerms;
     getline(cin, searchTerms);
     cout << "Searching for: " << searchTerms << endl;
     searchResults = searchPerson(AddressBook, searchTerms);
@@ -634,6 +682,62 @@ int main() {
     getline(cin, searchTerms);
     AddressBook = deletePerson(AddressBook, searchTerms);
     printAddressBook(AddressBook, ADDRESS_BOOK);
+
+    cout << "Who's entry would you like to update? ";
+    getline(cin, searchTerms);
+    cout << "You entered: " << searchTerms << endl;
+    searchResults = searchPerson(AddressBook, searchTerms);
+    printAddressBook(searchResults, SEARCH_RESULTS);
+    if (searchResults != NULL) {
+        struct Person *target = searchResults;
+        if (searchResults->next != NULL) {
+            //More than one matches
+            cout << "Which INDEX NUMBER matches the person you would like to update? ";
+            cin >> index;
+            cin.clear();
+            cin.ignore(numeric_limits<int>::max(), '\n');
+            for (int i = 0; i < index-1; i++)
+                target = target->next;
+        }
+        cout << "The following entry will be updated: \n"
+            << "\t" << toString(target) << endl;
+        struct Person *p = new Person;
+        cout << "First name (Press ENTER to skip): ";
+        getline(cin, p->firstname);
+        if (p->firstname != "")
+            cout << "You entered: '" << p->firstname << "'\n";
+        else
+            cout << "Skipping; First name will not be updated.\n";
+        //
+        cout << "Last name (Press ENTER to skip): ";
+        getline(cin, p->lastname);
+        if (p->lastname != "")
+            cout << "You entered: '" << p->lastname << "'\n";
+        else
+            cout << "Skipping; Last name will not be updated.\n";
+        //
+        cout << "Phone Number (Press ENTER to skip): ";
+        getline(cin, p->phone);
+        if (p->phone != "")
+            cout << "You entered: '" << p->phone<< "'\n";
+        else
+            cout << "Skipping; Phone number will not be updated.\n";
+        //
+        cout << "Address (Press ENTER to skip): ";
+        getline(cin, p->address);
+        if (p->address != "")
+            cout << "You entered: " << p->address<< "'\n";
+        else
+            cout << "Skipping; Address field will not be updated.\n";
+        //
+        updatePerson(AddressBook, target, p);
+        delete p;
+        p = NULL;
+        searchResults = destroyPersonLinkedList(searchResults);
+        printAddressBook(AddressBook, ADDRESS_BOOK);
+    } else {
+        cout << "No matching records to update.\n";
+    }
 
     //Memory cleanup.
     AddressBook = destroyPersonLinkedList(AddressBook);
