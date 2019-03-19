@@ -8,18 +8,28 @@
  * linked list material we covered in class. In this assignment user must be
  * able to do the following operations :
  *  Add a person in the address book
- *  Update a person in the address book
+ *  Update a person in the address book 
  *  Delete a person in the address book
- *  Search for a person in the address book
+ *  Search for a person in the address book 
+ *
+ *  Core functions:
+ *      addPerson
+ *      updatePerson
+ *      deletePerson
+ *      searchPerson
+ *  Other functions are just helpers.
  */
 #include <cassert> //assert
 #include <cstdlib> //srand, rand
 #include <ctime> //time
 #include <iomanip> //setw
 #include <string>
+#include <limits> //numeric_limits<int>::max()
 #include <iostream>
 using namespace std;
-#include <limits> //numeric_limits<int>::max()
+
+const string ADDRESS_BOOK = "Address Book";
+const string SEARCH_RESULTS = "Search Results";
 
 
 
@@ -41,6 +51,85 @@ void displayMenu();
     /**
      * Postcondition: a textual representation of the Menu screen is
      *  displayed on stdout.
+     */
+
+
+
+
+
+void updateAddressBook(struct Person *head);
+    /**
+     * Precondition: head is a Person linked list.
+     * Postcondition: a Person node in the provided Person linkedlist
+     *  is updated with user input.
+     */
+
+
+
+
+
+struct Person * addPersonFromUserInput(struct Person *head);
+    /**
+     * Adds a new Person node to the linkedlist from user input.
+     *
+     * Precondition: head is a Person linked list.
+     * Postcondition: a new node is appended to the tail of the linkedlist;
+     * Return: the head node with new node attached.
+     */
+
+
+
+
+
+struct Person * addPersonFromPreFilledData(struct Person *head);
+    /**
+     * Adds a new Person node to the linkedlist from randomly
+     * generated data.
+     *
+     * Precondition: head is a Perso linkedlist.
+     * Postcondition: a new node is appended to the tail of the linkedlist;
+     * Return: the head node wit ha new node attached.
+     *
+     */
+
+
+
+
+
+int promptMenuChoice();
+    /**
+     * Prompt user to choose a menu item.
+     *
+     * Postcondition: user input is validated before returned.
+     * Return: a proper menu item from available choices.
+     */
+
+
+
+
+
+void searchForContact(struct Person *AddressBook);
+    /**
+     * Search for a key term against all Person nodes in provied
+     * linkedlist.
+     *
+     * Precondition: AddressBook is a linkedlist of Person nodes.
+     * Postcondition: print a list of nodes that matched key terms to
+     *  stdout.
+     */
+
+
+
+
+
+struct Person * searchAndDeletePerson(struct Person *AddressBook);
+    /** 
+     * Attempt to delete a node from AddressBook, based on searching
+     * using key terms provided by user input.
+     *
+     * Precondition: AddressBook is a linkedlist of Person nodes
+     * Postcondition: Search for a person node, and invokes deletePerson
+     * Returns: the updated head node after attempting to delete
      */
 
 
@@ -657,14 +746,200 @@ void displayMenu() {
         << "\t\t Menu \n"
         << "==============================================\n"
         << "  0. Print AddressBook\n"
-        << "  1. Add a new contact\n"
-        << "  2. Update an existing contact\n"
-        << "  3. Delete a contact\n"
-        << "  4. List all added contacts in sorted order\n"
-        << "  5. Search for a given contact\n"
-        << "  6. Quit\n"
+        << "  1. Add a new contact (User Input)\n"
+        << "  2. Add a new contact (Pre-Filled Data)\n"
+        << "  3. Update an existing contact\n"
+        << "  4. Delete a contact\n"
+        << "  5. List all added contacts in sorted order\n"
+        << "  6. Search for a given contact\n"
+        << "  7. Quit\n"
         << "==============================================\n"
         << endl;
+}
+
+
+
+
+
+void updateAddressBook(struct Person *AddressBook) {
+    string searchTerms;
+    int index;
+    struct Person *searchResults = NULL;
+    struct Person *target = NULL;
+    struct Person *tmp_person = NULL;
+    cout << "Who's entry would you like to update? (Case-Sensitive) ";
+    getline(cin, searchTerms);
+    cout << "You entered: " << searchTerms << "\n\n";
+    searchResults = searchPerson(AddressBook, searchTerms);
+    printAddressBook(searchResults, SEARCH_RESULTS);
+    if (searchResults != NULL) {
+        target = searchResults;
+        if (searchResults->next != NULL) {
+            //More than one matches
+            cout << "Which one? (index number) ";
+            cin >> index;
+            cin.clear();
+            cin.ignore(numeric_limits<int>::max(), '\n');
+            for (int i = 0; i < index-1; i++)
+                target = target->next;
+        }
+        cout << "\nThe following entry will be updated: \n"
+            << toString(target) << "\n\n";
+        tmp_person = new Person;
+        cout << "First name (Press ENTER to skip): ";
+        getline(cin, tmp_person->firstname);
+        if (tmp_person->firstname != "")
+            cout << "You entered: '" << tmp_person->firstname << "'\n";
+        else
+            cout << "Skipping; First name will not be updated.\n";
+        cout << endl;
+        //
+        cout << "Last name (Press ENTER to skip): ";
+        getline(cin, tmp_person->lastname);
+        if (tmp_person->lastname != "")
+            cout << "You entered: '" << tmp_person->lastname << "'\n";
+        else
+            cout << "Skipping; Last name will not be updated.\n";
+        cout << endl;
+        //
+        cout << "Phone Number (Press ENTER to skip): ";
+        getline(cin, tmp_person->phone);
+        if (tmp_person->phone != "")
+            cout << "You entered: '" << tmp_person->phone<< "'\n";
+        else
+            cout << "Skipping; Phone number will not be updated.\n";
+        cout << endl;
+        //
+        cout << "Address (Press ENTER to skip): ";
+        getline(cin, tmp_person->address);
+        if (tmp_person->address != "")
+            cout << "You entered: " << tmp_person->address<< "'\n";
+        else
+            cout << "Skipping; Address field will not be updated.\n";
+        cout << endl;
+        //
+        updatePerson(AddressBook, target, tmp_person);
+        cout << "\n" << target->firstname << " " << target->lastname << "'s entry has successfully updated.\n\n";
+        //
+        delete tmp_person;
+        tmp_person = NULL;
+        searchResults = destroyPersonLinkedList(searchResults);
+    } else {
+        cout << "No matching records to update.\n";
+    }
+}
+
+
+
+
+
+struct Person * addPersonFromUserInput(struct Person *head) {
+    string firstname, lastname, phone, address;
+    cout << "First name? ";
+    getline(cin, firstname);
+    cout << "You entered: " << firstname << "\n\n";
+    cout << "Last name? ";
+    getline(cin, lastname);
+    cout << "You entered: " << lastname << "\n\n";
+    cout << "Phone? ";
+    getline(cin, phone);
+    cout << "You entered: " << phone << "\n\n";
+    cout << "Address? ";
+    getline(cin, address);
+    cout << "You entered: " << address << "\n\n";
+    return addPerson(head,
+        firstname,
+        lastname,
+        phone,
+        address
+    );
+}
+
+
+
+
+
+struct Person * addPersonFromPreFilledData(struct Person *AddressBook) {
+    return addPerson(AddressBook,
+            getRandFirstName(),
+            getRandLastName(),
+            getRandPhone(),
+            getRandAddress()
+    );
+}
+
+
+
+
+
+int promptMenuChoice() {
+    bool isValidInput = true,
+         isUnexpectedInput = false;
+    int menuInput;
+    do {
+        cout << "What would you like to do? ";
+        cin >> menuInput;
+        if (cin.fail()) {
+            //Validate input data type; i.e. Did cin get an integer?
+            isUnexpectedInput = true;
+            isValidInput = false;
+        }
+        //Avoid infinite loop in case cin failed.
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        if (isUnexpectedInput) {
+            cout << "Opps. Please choose from the menu number.\n";
+            isUnexpectedInput = false;
+        } else if (menuInput < 0 || menuInput > 7) {
+            //Validate numerical ranges.
+            cout << "The number you entered, " << menuInput
+                << " is out of range. Please try again.\n";
+            isValidInput = false;
+        } else
+           isValidInput = true;
+    } while (!isValidInput);
+    return menuInput;
+}
+
+
+
+
+
+void searchForContact(struct Person *AddressBook) {
+    string searchTerms;
+    struct Person *searchResults = NULL;
+    cout << "Search (Case-Sensitive): ";
+    getline(cin, searchTerms);
+    cout << "Searching for: " << searchTerms << endl;
+    searchResults = searchPerson(AddressBook, searchTerms);
+    printAddressBook(searchResults, SEARCH_RESULTS);
+    if (searchResults == NULL
+            && searchTerms.find(" ") != string::npos)
+        cout << "No results were found. "
+            << "Try narrowing the search. "
+            << "e.g. Just one word."
+            << endl;
+    searchResults = destroyPersonLinkedList(searchResults);
+}
+
+
+
+
+
+struct Person * searchAndDeletePerson(struct Person *AddressBook) {
+    struct Person *searchResults = NULL;
+    string searchTerms;
+    cout << "Which entry would you like to delete? ";
+    getline(cin, searchTerms);
+    searchResults = searchPerson(AddressBook, searchTerms);
+    if ( searchResults != NULL) {
+        AddressBook = deletePerson(AddressBook, searchTerms);
+        cout << "The following entry was removed from the Address Book.\n"
+            << toString(searchResults) << "\n\n";
+    }
+    else
+        cout << searchTerms << " was not found. No entry was deleted.\n\n";
+    return AddressBook;
 }
 
 
@@ -674,135 +949,46 @@ void displayMenu() {
 int main() {
     srand (time(NULL));
 
-    const string ADDRESS_BOOK = "Address Book";
-    const string SEARCH_RESULTS = "Search Results";
     struct Person *AddressBook = NULL;
     struct Person *searchResults = NULL;
-    struct Person *p = NULL;
-    int index;
     string searchTerms;
 
     int menuInput;
-    bool isQuit = false,
-         isUnexpectedInput = false;
+    bool isQuit = false;
     do {
         displayMenu();
-        cout << "What would you like to do? ";
-        cin >> menuInput;
-        if (cin.fail())
-            isUnexpectedInput = true;
-        cin.clear();
-        cin.ignore(numeric_limits<int>::max(), '\n');
-        if (isUnexpectedInput) {
-            cout << "Opps. Please choose from the menu number.\n";
-            isUnexpectedInput = false;
-        } else if (menuInput < 0 || menuInput > 6) {
-            cout << "The number you entered, " << menuInput
-                << " is out of range. Please try again.\n";
-        } else {
-            cout << "You entered: " << menuInput << endl << endl;
-            switch(menuInput) {
-                case 0: //Print AddressBook
-                    printAddressBook(AddressBook, ADDRESS_BOOK);
-                    break;
-                case 1: //Add a new contact
-                    AddressBook = addPerson(AddressBook, getRandFirstName(), getRandLastName(), getRandPhone(), getRandAddress());
-                    break;
-                case 2: //Update an existing contact
-                    break;
-                case 3: //Delete a contact
-                    break;
-                case 4: //List all added contacts in sorted order
-                    break;
-                case 5: //Search for a given contact
-                    break;
-                case 6: //Quit
-                    isQuit = true;
-                    cout << "Thank you for using AddressBook. Good bye!\n\n";
-                    break;
-            }
+        menuInput = promptMenuChoice();
+        cout << "You entered: " << menuInput << endl << endl;
+        switch(menuInput) {
+            case 0: //Print AddressBook
+                printAddressBook(AddressBook, ADDRESS_BOOK);
+                break;
+            case 1: //Add a new contact (User Input)
+                AddressBook = addPersonFromUserInput(AddressBook);
+                break;
+            case 2: //Add a new contact (Pre-filled data)
+                AddressBook = addPersonFromPreFilledData(AddressBook);
+                break;
+            case 3: //Update an existing contact
+                updateAddressBook(AddressBook);
+                break;
+            case 4: //Delete a contact
+                AddressBook = searchAndDeletePerson(AddressBook);
+                break;
+            case 5: //List all added contacts in sorted order
+                AddressBook = sort(AddressBook);
+                printAddressBook(AddressBook, ADDRESS_BOOK);
+                break;
+            case 6: //Search for a given contact
+                searchForContact(AddressBook);
+                break;
+            case 7: //Quit
+                isQuit = true;
+                break;
         }
     } while (!isQuit);
 
-/*
-    cout << "Search (Case-Sensitive): ";
-    getline(cin, searchTerms);
-    cout << "Searching for: " << searchTerms << endl;
-    searchResults = searchPerson(AddressBook, searchTerms);
-    printAddressBook(searchResults, SEARCH_RESULTS);
-    if (searchResults == NULL && searchTerms.find(" ") != string::npos)
-        cout << "No results were found. Try narrowing the search. e.g. Just one word.\n";
-    searchResults = destroyPersonLinkedList(searchResults);
-
-    AddressBook = sort(AddressBook);
-    printAddressBook(AddressBook, ADDRESS_BOOK);
-
-    cout << "Which entry would you like to delete? ";
-    getline(cin, searchTerms);
-    AddressBook = deletePerson(AddressBook, searchTerms);
-    printAddressBook(AddressBook, ADDRESS_BOOK);
-
-    cout << "Who's entry would you like to update? ";
-    getline(cin, searchTerms);
-    cout << "You entered: " << searchTerms << endl;
-    searchResults = searchPerson(AddressBook, searchTerms);
-    printAddressBook(searchResults, SEARCH_RESULTS);
-    if (searchResults != NULL) {
-        struct Person *target = searchResults;
-        if (searchResults->next != NULL) {
-            //More than one matches
-            cout << "Which INDEX NUMBER matches the person you would like to update? ";
-            cin >> index;
-            cin.clear();
-            cin.ignore(numeric_limits<int>::max(), '\n');
-            for (int i = 0; i < index-1; i++)
-                target = target->next;
-        }
-        cout << "The following entry will be updated: \n"
-            << "\t" << toString(target) << endl;
-        tmp_person = new Person;
-        // The following sequences feels so DRY :(
-        // But I don't know how to simplify it.
-        // Thought of using an array to hold string literals with the
-        // name of each field. But it doesn't help with pointer
-        // references tmp_person->FIELD_NAME;
-        cout << "First name (Press ENTER to skip): ";
-        getline(cin, tmp_person->firstname);
-        if (tmp_person->firstname != "")
-            cout << "You entered: '" << tmp-person->firstname << "'\n";
-        else
-            cout << "Skipping; First name will not be updated.\n";
-        //
-        cout << "Last name (Press ENTER to skip): ";
-        getline(cin, tmp_person->lastname);
-        if (tmp_person->lastname != "")
-            cout << "You entered: '" << tmp_person->lastname << "'\n";
-        else
-            cout << "Skipping; Last name will not be updated.\n";
-        //
-        cout << "Phone Number (Press ENTER to skip): ";
-        getline(cin, tmp_person->phone);
-        if (tmp_person->phone != "")
-            cout << "You entered: '" << tmp_person->phone<< "'\n";
-        else
-            cout << "Skipping; Phone number will not be updated.\n";
-        //
-        cout << "Address (Press ENTER to skip): ";
-        getline(cin, tmp_person->address);
-        if (tmp_person->address != "")
-            cout << "You entered: " << tmp_person->address<< "'\n";
-        else
-            cout << "Skipping; Address field will not be updated.\n";
-        //
-        updatePerson(AddressBook, target, tmp_person);
-        delete tmp_person;
-        tmp_person = NULL;
-        searchResults = destroyPersonLinkedList(searchResults);
-        printAddressBook(AddressBook, ADDRESS_BOOK);
-    } else {
-        cout << "No matching records to update.\n";
-    }
-*/
+    cout << "Thank you for using AddressBook. Good bye!\n\n";
 
     //Memory cleanup.
     AddressBook = destroyPersonLinkedList(AddressBook);
