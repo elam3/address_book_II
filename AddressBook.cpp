@@ -47,6 +47,31 @@ struct Person {
 
 
 
+int getLength(struct Person *head);
+    /**
+     * Precondition: head is a linked list of Person nodes
+     * Postcondition: traverses through the linkedlist to count the length
+     * Result: an integer containing the number of nodes in the provided
+     *  linked list head.
+     */
+
+
+
+
+
+int getValidInput(int min, int max, string prompt);
+    /**
+     * Precondition: min is less than max, or throw exception
+     *  -prompt is a string containing instructions to cue user input
+     * Postcondition: an integer between and including min, max
+     *  is provided through stdin
+     * Return: an integer between the range [min, max] inclusively.
+     */
+
+
+
+
+
 void displayMenu();
     /**
      * Postcondition: a textual representation of the Menu screen is
@@ -90,18 +115,6 @@ struct Person * addPersonFromPreFilledData(struct Person *head);
      * Postcondition: a new node is appended to the tail of the linkedlist;
      * Return: the head node wit ha new node attached.
      *
-     */
-
-
-
-
-
-int promptMenuChoice();
-    /**
-     * Prompt user to choose a menu item.
-     *
-     * Postcondition: user input is validated before returned.
-     * Return: a proper menu item from available choices.
      */
 
 
@@ -776,10 +789,8 @@ void updateAddressBook(struct Person *AddressBook) {
         target = searchResults;
         if (searchResults->next != NULL) {
             //More than one matches
-            cout << "Which one? (index number) ";
-            cin >> index;
-            cin.clear();
-            cin.ignore(numeric_limits<int>::max(), '\n');
+            int len = getLength(searchResults);
+            index = getValidInput(1, len, "Which one? (index number) ");
             for (int i = 0; i < index-1; i++)
                 target = target->next;
         }
@@ -872,39 +883,6 @@ struct Person * addPersonFromPreFilledData(struct Person *AddressBook) {
 
 
 
-int promptMenuChoice() {
-    bool isValidInput = true,
-         isUnexpectedInput = false;
-    int menuInput;
-    do {
-        cout << "What would you like to do? ";
-        cin >> menuInput;
-        if (cin.fail()) {
-            //Validate input data type; i.e. Did cin get an integer?
-            isUnexpectedInput = true;
-            isValidInput = false;
-        }
-        //Avoid infinite loop in case cin failed.
-        cin.clear();
-        cin.ignore(numeric_limits<int>::max(), '\n');
-        if (isUnexpectedInput) {
-            cout << "Opps. Please choose from the menu number.\n";
-            isUnexpectedInput = false;
-        } else if (menuInput < 0 || menuInput > 7) {
-            //Validate numerical ranges.
-            cout << "The number you entered, " << menuInput
-                << " is out of range. Please try again.\n";
-            isValidInput = false;
-        } else
-           isValidInput = true;
-    } while (!isValidInput);
-    return menuInput;
-}
-
-
-
-
-
 void searchForContact(struct Person *AddressBook) {
     string searchTerms;
     struct Person *searchResults = NULL;
@@ -946,6 +924,54 @@ struct Person * searchAndDeletePerson(struct Person *AddressBook) {
 
 
 
+int getValidInput(int min, int max, string prompt) {
+    assert (min < max);
+    int input;
+    bool isValidInput = false,
+         isUnexpectedType = false;
+    do {
+        cout << prompt;
+        cin >> input;
+        if (cin.fail()) {
+            //Validate input data type; i.e. Did cin get an integer?
+            isUnexpectedType = true;
+            isValidInput = false;
+        }
+        //Avoid infinite loop in case cin failed.
+        cin.clear();
+        cin.ignore(numeric_limits<int>::max(), '\n');
+        if (isUnexpectedType) {
+            cout << "Opps. Please choose from the menu number.\n";
+            isUnexpectedType = false;
+        } else if (input < min || input > max) {
+            //Validate numerical ranges.
+            cout << "The number you entered, " << input
+                << " is out of range. Please try again.\n";
+            isValidInput = false;
+        } else
+           isValidInput = true;
+    } while (!isValidInput);
+    return input;
+}
+
+
+
+
+
+int getLength(struct Person *head) {
+    int len = 0;
+    struct Person *current = head;
+    while (current != NULL) {
+        current = current->next;
+        len++;
+    }
+    return len;
+}
+
+
+
+
+
 int main() {
     srand (time(NULL));
 
@@ -957,8 +983,7 @@ int main() {
     bool isQuit = false;
     do {
         displayMenu();
-        menuInput = promptMenuChoice();
-        cout << "You entered: " << menuInput << endl << endl;
+        menuInput = getValidInput(0, 7, "What would you like to do? ");
         switch(menuInput) {
             case 0: //Print AddressBook
                 printAddressBook(AddressBook, ADDRESS_BOOK);
