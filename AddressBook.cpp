@@ -223,6 +223,22 @@ struct Person * deletePerson(struct Person *head, string query);
 
 
 
+struct Person * deletePerson(struct Person *head, struct Person *other);
+    /**
+     * Deletes the first node in the linkedlist head that has a an exact
+     * match with other.
+     *
+     * Precondition: head is a Person linkedlist, and other is a Person
+     *  node identifying the Person object to be deleted.
+     * Postcondition: the first Person object with an exact match on
+     *  with other will be removed from the linkedlist.
+     * Return: the head node of the linkedlist
+     */
+
+
+
+
+
 struct Person* searchPerson(struct Person *head, string query);
     /**
      * Looks through all nodes in the linkedlist head for all nodes that
@@ -450,13 +466,43 @@ struct Person * deletePerson(struct Person *head, string query) {
     if (head != NULL) {
         string person_str = toString(head);
         if (person_str.find(query) != string::npos) {
+            struct Person *tmp = head;
             head = head->next;
+            delete tmp;
         } else {
             struct Person *current = head;
             while (current->next != NULL) {
                 person_str = toString(current->next);
                 if (person_str.find(query) != string::npos) {
+                    struct Person *tmp = current->next;
                     current->next = current->next->next;
+                    delete tmp;
+                    break;
+                }
+                current = current->next;
+            }
+        }
+    }
+    return head;
+}
+
+
+
+
+
+struct Person * deletePerson(struct Person *head, struct Person *other) {
+    if (head != NULL) {
+        if (compare(head, other) == 0) {
+            struct Person *tmp = head;
+            head = head->next;
+            delete tmp;
+        } else {
+            struct Person *current = head;
+            while (current->next != NULL) {
+                if (compare(current->next, other) == 0) {
+                    struct Person *tmp = current->next;
+                    current->next = current->next->next;
+                    delete tmp;
                     break;
                 }
                 current = current->next;
@@ -944,12 +990,27 @@ struct Person * searchAndDeletePerson(struct Person *AddressBook) {
     getline(cin, searchTerms);
     searchResults = searchPerson(AddressBook, searchTerms);
     if ( searchResults != NULL) {
-        AddressBook = deletePerson(AddressBook, searchTerms);
-        cout << "The following entry was removed from the Address Book.\n"
-            << toString(searchResults) << "\n\n";
+        if (searchResults->next != NULL) {
+            //searchResults has multiple nodes
+            int len = getLength(searchResults);
+            printAddressBook(searchResults, SEARCH_RESULTS);
+            int index = getValidInput(1, len, "Which one? (Index number) ");
+            struct Person *target = searchResults;
+            for (int i = 1; i < index; i++)
+                target = target->next;
+            cout << "The following entry was removed from the Address Book.\n"
+                << toString(target) << "\n\n";
+            AddressBook = deletePerson(AddressBook, target);
+        } else {
+            //searchResults is a singleton
+            AddressBook = deletePerson(AddressBook, searchTerms);
+            cout << "The following entry was removed from the Address Book.\n"
+                << toString(searchResults) << "\n\n";
+        }
     }
     else
         cout << searchTerms << " was not found. No entry was deleted.\n\n";
+    searchResults = destroyPersonLinkedList(searchResults);
     return AddressBook;
 }
 
