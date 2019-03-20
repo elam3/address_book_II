@@ -150,7 +150,11 @@ struct Person * searchAndDeletePerson(struct Person *AddressBook);
 
 
 struct Person * addPerson(struct Person *head, string _firstname, string _lastname, string _phone, string _address );
-    /* Precondition:
+    /**
+     * Add a new person to the end of the linkedlist head using provided
+     *  arguments.
+     *
+     * Precondition:
      *  head: Is the head node of a linked list.
      *      Contains NULL if empty.
      *  _firstname: is the first name of the new person to be added
@@ -173,6 +177,8 @@ struct Person * addPerson(struct Person *head, string _firstname, string _lastna
 
 struct Person * addPerson(struct Person *head, struct Person *source);
     /**
+     * Appends the a new copy of source to the end of the linkedlist head.
+     *
      * Precondition: head is a Person LinkedList,
      *  and source is a Person node to be added to the end of head.
      * Postcondition: source is added to the end of head.
@@ -185,6 +191,9 @@ struct Person * addPerson(struct Person *head, struct Person *source);
 
 void updatePerson(struct Person *head, struct Person *target, struct Person *other);
     /**
+     * Edit field data of a Person node in the linkedlist head that has
+     * an exact match with target using the new data provided by other.
+     *
      * Precondition:
      *  - head is the first node of a Person linkedlist,
      *  - target is the a matching record to search for in head,
@@ -200,6 +209,9 @@ void updatePerson(struct Person *head, struct Person *target, struct Person *oth
 
 struct Person * deletePerson(struct Person *head, string query);
     /**
+     * Deletes the first node in the linkedlist head that has a match
+     * with query.
+     *
      * Precondition: head is a Person linkedlist, and query is a string
      *  containing search terms to identify a Person object.
      * Postcondition: the first Person object with a match on query will be
@@ -213,10 +225,15 @@ struct Person * deletePerson(struct Person *head, string query);
 
 struct Person* searchPerson(struct Person *head, string query);
     /**
+     * Looks through all nodes in the linkedlist head for all nodes that
+     * has a match with the query string.
+     *
      * Precondition: head is a pointer to a Person LinkedList,
-     *  and query is a string containing search terms to identify a Person object.
-     * Return: a Person linkedlist of Person objects that contain matches with the query string,
-     *  if there are no matches, a Person pointer pointing to null is returned.
+     *  and query is a string containing search terms to identify a
+     *  Person object.
+     * Return: a Person linkedlist of Person objects that contain matches
+     *  with the query string, if there are no matches, a Person pointer
+     *  pointing to null is returned.
      */
 
 
@@ -225,6 +242,9 @@ struct Person* searchPerson(struct Person *head, string query);
 
 int compare(struct Person *src, struct Person *other);
     /**
+     * Compares two Person objects based on first the lastname, firstname,
+     * phone, and finally the address.
+     *
      * Precondition: src and other are well-define Person objects
      * Postcondition: src and other are compared by lastname, firstname, phone, then address.
      * Return: a negative integer if src is smaller than other,
@@ -238,8 +258,12 @@ int compare(struct Person *src, struct Person *other);
 
 struct Person * sort(struct Person *head);
     /**
+     * Sorts the linkedlist head in ascending order based on the criteria
+     * of compare(Person, Person).
+     *
      * Precondition: head is a Person linkedlist
-     * Postcondition: the linkedlist will be sorted in ascending order based on lastname, firstname, phone, then address.
+     * Postcondition: the linkedlist will be sorted in ascending order
+     *  based on lastname, firstname, phone, then address.
      * Return: returns the head node of the sorted linkedlist
      */
 
@@ -249,6 +273,8 @@ struct Person * sort(struct Person *head);
 
 string toString(struct Person *person);
     /**
+     * Prints a text representation of a Person object.
+     *
      * Preconditon: person is null, or properly initialized.
      * Return: an empty string if person is NULL,
      *  otherwise return a string representation of a Person object.
@@ -260,6 +286,8 @@ string toString(struct Person *person);
 
 void printAddressBook(struct Person *head, const string title);
     /**
+     * Prints all Person nodes from the provided linkedlist.
+     *
      * Precondition: head is NULL, or a linkedlist of Person objects.
      * Postcondition: print a textual representation of the address book to stdout.
      */
@@ -270,6 +298,8 @@ void printAddressBook(struct Person *head, const string title);
 
 struct Person* destroyPersonLinkedList(struct Person *head);
     /**
+     * Deallocate memory for all Person nodes in the linkedlist.
+     *
      * Precondition: head is a pointer to a linkedlist of Person objects
      * Postcondition: all Person nodes of the linkedlist AddressBook will be deallocated from the heap.
      * Returns: the head node, which should be a NULL.
@@ -282,6 +312,7 @@ struct Person* destroyPersonLinkedList(struct Person *head);
 string getRandFirstName();
     /**
      * Helper function to randomly generate a first name.
+     *
      * Return: a randomly chosen first name from a list of 50.
      */
 
@@ -292,6 +323,7 @@ string getRandFirstName();
 string getRandLastName();
     /**
      * Helper function to randomly generate a last name.
+     *
      * Return: a randomly chosen last name from a list of 50.
      */
 
@@ -313,6 +345,7 @@ string getRandPhone();
 string getRandAddress();
     /**
      * Helper function to randomly generate a street address.
+     *
      * Return: a randomly chosen street address from a list of 50.
      */
 
